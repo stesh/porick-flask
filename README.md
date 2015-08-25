@@ -1,2 +1,2 @@
 # porick-flask
-Porting porick to flask
+Porting Porick (github.com/kopf/porick) to Flask
