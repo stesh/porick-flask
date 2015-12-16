@@ -1,3 +1,4 @@
 Flask
 MySQL-python
 SQLAlchemy
+bcrypt
