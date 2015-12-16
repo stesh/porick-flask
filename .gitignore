@@ -4,3 +4,4 @@
 
 .ropeproject
 porick-venv/
+porick/settings/*.py
