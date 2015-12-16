@@ -16,4 +16,9 @@ Porting [Porick](github.com/kopf/porick) to Flask
 * `python runserver.py`
 
 ## Database setup
-TODO
+
+```
+>>> from porick.model.meta import Base, engine
+>>> Base.metadata.create_all(engine)
+>>>
+```
