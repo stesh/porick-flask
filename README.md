@@ -1,5 +1,5 @@
 # porick-flask
-Porting [Porick](github.com/kopf/porick) to Flask
+Porting [Porick](http://github.com/kopf/porick) to Flask
 
 ## Getting started
     $ mkvirtualenv porick-flask
