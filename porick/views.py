@@ -1,6 +1,6 @@
 from flask import render_template, g
 
-from porick import app, model
+from porick import app
 
 
 @app.route('/')
