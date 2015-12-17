@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% from "/macros.html" import check_if_voted, get_score_mouseover, render_pagination %}
+
+{% block custom_js %}
+    {% if g.user %}
+        {% if g.show_approval_button %}
+            <script type="text/javascript" src="{{ url_for('static', filename='/js/approval.js') }}"></script>
+        {% endif %}
+        <script type="text/javascript" src="{{ url_for('static', filename='/js/voting.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/js/favourites.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/js/reporting.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/js/delete.js') }}"></script>
+        {% if g.is_admin and g.page != 'disapproved' %}
+            <script type="text/javascript" src="{{ url_for('static', filename='/js/disapprove.js') }}"></script>
+        {% endif %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                setupVoteClickHandlers();
+                setupFavouritesClickHandlers();
+                setupReportingClickHandlers();
+                setupDeleteClickHandlers();
+                {% if g.is_admin and g.page != 'disapproved' %}
+                    setupDisapproveClickHandlers();
+                {% endif %}
+                {% if g.show_approval_button %}
+                    setupApproveClickHandlers();
+                {% endif %}
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+{% block body_content %}
+    {% if not pagination.items %}
+        <div class="hero-unit">
+            <h1>No quotes found.</h1>
+            <p>
+            {% if g.page == 'favourites' %}
+                Just click the little star in the top-right hand corner of any quote and it'll be added to your
+                favourites!
+            {% elif g.page == 'unapproved' %}
+                Best go grab a can.
+            {% elif g.page in ['reported', 'deleted', 'disapproved'] %}
+            {% else %}
+                Get your users to add some!
+            {% endif %}
+            </p>
+        </div>
+    {% else %}
+        {% for quote in pagination.items %}
+            <div class="well quote">
+                {% set voted=check_if_voted(quote) %}
+                <div class="votes">
+                    <div class="quote_control vote up {% if g.user %}logged_in {% endif %}{% if voted == 'up' %}voted {% endif %}" title="{{ get_score_mouseover(quote, 'up') }}" data-quote_id="{{quote.id}}">
+                        <i class="icon-arrow-up"></i>
+                    </div>
+                    <div class="score">{{quote.rating}}</div>
+                    <div class="quote_control vote down {% if g.user %}logged_in {% endif %}{% if voted == 'down' %}voted {% endif %}" title="{{ get_score_mouseover(quote, 'down') }}" data-quote_id="{{quote.id}}">
+                        <i class="icon-arrow-down"></i>
+                    </div>
+                </div>
+                <ul class="metadata">
+                    <li>
+                        <a href="{{ url_for('browse', quote_id=quote.id) }}" class="date">{{ quote.submitted.strftime("%d. %B %Y @ %H:%M") }}</a>
+                        {% if quote.submitted_by %}
+                            <span class="submitted_by">
+                                by {{quote.submitted_by.username}}
+                            </span>
+                        {% endif %}
+                    </li>
+                    <li class="top_right nomargin">
+                        <ul class="top_right_controls">
+                            {% if g.page != 'reported' %}
+                                <li>
+                                    <div class="quote_control report {% if g.user %}logged_in{% endif %}" title="Report" data-quote_id="{{quote.id}}">
+                                        <i class="icon-flag"></i>
+                                    </div>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <div>
+                                    <span class="quote_control favourite {% if g.user %}logged_in{% if quote in g.user.favourites %}favourited{% endif %}{% endif %}"
+                                          title="Favourite"
+                                          data-quote_id="{{quote.id}}">
+                                        <i class="{% if g.user and quote in g.user.favourites %}icon-star{% else %}icon-star-empty{% endif %}"></i>
+                                    </span>
+                                </div>
+                            </li>
+                            {% if g.page in ['unapproved', 'reported', 'disapproved'] and g.user and g.user.level == 1 %}
+                                <li>
+                                    <div class="quote_control logged_in approve" title="Approve" data-quote_id="{{quote.id}}">
+                                        <i class="icon-ok-sign"></i>
+                                    </div>
+                                </li>
+                            {% endif %}
+                            {% if g.user.is_admin and g.page != 'disapproved' %}
+                                <li>
+                                    <div class="quote_control logged_in disapprove" title="Disapprove" data-quote_id="{{quote.id}}">
+                                        <i class="icon-remove-sign"></i>
+                                    </div>
+                                </li>
+                            {% endif %}
+                            {% if g.user and g.page != 'deleted' and (quote.submitted_by == g.user or g.user.level == 1) %}
+                                <li>
+                                    <div class="quote_control logged_in delete" title="Delete" data-quote_id="{{quote.id}}">
+                                        <i class="icon-trash"></i>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+                <div class="content">
+                    <pre>{{quote.body}}</pre>
+                    {% if quote.notes %}
+                        <hr>
+                        <h6>{{quote.notes}}</h6>
+                    {% endif %}
+                </div>
+                <div class="bottom_metadata">
+                    {% if quote.tags %}
+                        <div class="extra_info tags">
+                            {% for tag in quote.tags %}
+                                <a href="{{ url_for('browse_by_tags', tag=tag.tag) }}">
+                                    <span class="label label-important">
+                                        {{tag.tag}}
+                                    </span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        {{render_pagination(pagination)}}
+    {% endif %}
+{% endblock %}

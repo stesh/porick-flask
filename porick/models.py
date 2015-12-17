@@ -1,5 +1,7 @@
 import datetime
-from sqlalchemy import Column, Index, String, Text, DateTime, Integer, ForeignKey, Table
+
+from sqlalchemy import (
+    Column, Index, String, Text, DateTime, Integer, ForeignKey, Table, func)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import DOUBLE
 
@@ -15,10 +17,6 @@ QSTATUS = {'unapproved': 0,
 
 def now():
     return datetime.datetime.utcnow()
-
-def init_model(engine):
-    """Call me before using any of the tables or classes in the model"""
-    db.configure(bind=engine)
 
 
 class Tag(db.Model):
@@ -51,6 +49,7 @@ DeletedQuotes = Table('deleted_quotes', db.Model.metadata,
     Column('time', DateTime, nullable=False, default=now)
 )
 
+
 class User(db.Model):
     __tablename__  = 'users'
     __table_args__ = {'mysql_engine': 'InnoDB',
@@ -64,10 +63,12 @@ class User(db.Model):
     reported_quotes = relationship("Quote", secondary=ReportedQuotes)
     deleted_quotes = relationship("Quote", secondary=DeletedQuotes)
 
+
 QuoteToUser = Table('quote_to_user', db.Model.metadata,
     Column('quote_id', Integer, ForeignKey('quotes.id')),
     Column('user_id', Integer, ForeignKey('users.id'))
 )
+
 
 class VoteToUser(db.Model):
     __tablename__  = 'vote_to_user'
@@ -76,11 +77,13 @@ class VoteToUser(db.Model):
     direction = Column(String(4), nullable=False)
     user = relationship("User")
 
+
 class PasswordResets(db.Model):
     __tablename__  = 'password_resets'
     user_id  = Column(Integer, ForeignKey('users.id'), primary_key=True)
     key = Column(String(26), nullable=False)
     created = Column(DateTime, nullable=False, default=now)
+
 
 class Quote(db.Model):
     __tablename__  = 'quotes'
@@ -98,3 +101,10 @@ class Quote(db.Model):
     submitted_by = relationship("User", secondary=QuoteToUser, uselist=False)
     voters       = relationship("VoteToUser")
 
+
+AREA_ORDER_MAP = {
+    'best': Quote.rating.desc(),
+    'worst': Quote.rating,
+    'random': func.rand()
+}
+DEFAULT_ORDER = Quote.submitted.desc()
