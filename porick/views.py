@@ -1,8 +1,13 @@
 from flask import render_template, g, abort
 
-from porick import app
+from . import app
+from .lib import current_page
+from .models import Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
-from porick.model import db, Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
+
+@app.before_request
+def before_request():
+    g.current_page = current_page()
 
 
 @app.route('/')
@@ -13,16 +18,14 @@ def landing_page():
 @app.route('/browse')
 @app.route('/browse/<int:quote_id>')
 @app.route('/browse/<area>')
-@app.route('/browse/<area>/page/<int:page>')
-def browse(area=None, quote_id=None, page=1):
+def browse(area=None, quote_id=None):
     g.page = area or 'browse'
     g.user = None
     quotes = Quote.query
     if quote_id is not None:
-        quote = quotes.filter(Quote.id == quote_id).first()
-        if not quote or quote.status != QSTATUS['approved']:
+        quotes = quotes.filter(Quote.id == quote_id).first()
+        if not quotes or quotes.status != QSTATUS['approved']:
             abort(404)
-        quotes = [quote]
     else:
         try:
             quotes = quotes.filter(Quote.status == QSTATUS[area])
@@ -32,22 +35,20 @@ def browse(area=None, quote_id=None, page=1):
             quotes = quotes.filter(Quote.status == QSTATUS['approved'])
         quotes = quotes.order_by(AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
         if area == 'random':
-            quotes = [quotes.first()]
-        else:
-            quotes = quotes.all()
-    return render_template('/browse.html', quotes=quotes)
+            quotes = quotes.first()
+    pagination = quotes.paginate(
+        g.current_page, app.config['QUOTES_PER_PAGE'], error_out=True)
+    return render_template('/browse.html', pagination=pagination)
 
 
 @app.route('/browse/tags')
 @app.route('/browse/tags/<tag>')
-@app.route('/browse/tags/<tag>/page/<page>')
 def browse_by_tags(tag=None, page=None):
     raise NotImplementedError()
 
 
 @app.route('/search')
 @app.route('/search/<term>')
-@app.route('/search/<term>/page/<page>')
 def search(term=None, page=None):
     raise NotImplementedError()
 

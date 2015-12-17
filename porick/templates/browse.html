@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "/macros.html" import render_pagination %}
 
 {% block custom_js %}
     {% if g.user %}
@@ -30,7 +31,7 @@
 {% endblock %}
 
 {% block body_content %}
-    {% if not quotes %}
+    {% if not pagination.items %}
         <div class="hero-unit">
             <h1>No quotes found.</h1>
             <p>
@@ -46,7 +47,7 @@
             </p>
         </div>
     {% else %}
-        {% for quote in quotes %}
+        {% for quote in pagination.items %}
             <div class="well quote">
                 <% voted = h.check_if_voted(quote) %>
                 <div class="votes">
@@ -131,8 +132,6 @@
                 </div>
             </div>
         {% endfor %}
-        Pagination:
-        {{ pagination.info }}
-        {{ pagination.links }}
+        {{render_pagination(pagination)}}
     {% endif %}
 {% endblock %}
