@@ -1,16 +1,26 @@
-from flask import render_template, g, abort
+import hashlib
+
+from flask import (
+    abort, render_template, flash, g, request, redirect, make_response, url_for)
 
 from . import app
-from .lib import current_page
-from .models import Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
+from .lib import current_page, authenticate
+from .models import Quote, User, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
 
 @app.before_request
 def before_request():
     g.current_page = current_page()
-    # TODO  - AUTHENTICATION
-    from mock import MagicMock
-    g.user = MagicMock()
+    g.user = None
+    auth = request.cookies.get('auth')
+    username = request.cookies.get('username')
+    level = request.cookies.get('level')
+    if auth:
+        value = '{}:{}:{}'.format(app.config['COOKIE_SECRET'], username, level)
+        if auth == hashlib.md5(value).hexdigest():
+            user = User.query.filter(User.username == username).first()
+            if user:
+                g.user = user
 
 
 @app.route('/')
@@ -68,9 +78,28 @@ def create_account():
     raise NotImplementedError()
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET'])
 def login():
-    raise NotImplementedError()
+    return render_template('/login.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    user = authenticate(request.form['username'], request.form['password'])
+    if not user:
+        flash('Incorrect username / password', 'error')
+        return render_template('/login.html')
+    cleartext_value = '{}:{}:{}'.format(
+        app.config['COOKIE_SECRET'], user.username, user.level)
+    auth = hashlib.md5(cleartext_value).hexdigest()
+    if request.args.get('redirect_url') not in [None, '/signup', '/logout', '/reset_password']:
+        response = make_response(redirect(request.args.get('redirect_url')))
+    else:
+        response = make_response(redirect(url_for('browse')))
+    response.set_cookie('auth', auth, max_age=2592000)
+    response.set_cookie('username', user.username, max_age=2592000)
+    response.set_cookie('level', str(user.level), max_age=2592000)
+    return response
 
 
 @app.route('/logout')
