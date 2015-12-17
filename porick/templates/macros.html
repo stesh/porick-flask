@@ -1,4 +1,5 @@
-{% macro check_if_voted(quote) %}{% if g.user %}{% for assoc in quote.voters %}{% if assoc.user.username == g.user.username %}{{ assoc.direction }}{% endif %}{% endif %}{% endmacro %}
+{% macro check_if_voted(quote) %}{% if g.user %}{% for assoc in quote.voters %}{% if assoc.user.username == g.user.username %}{{ assoc.direction }}{% endif %}{% endfor %}{% endif %}{% endmacro %}
+{% macro get_score_mouseover(quote, direction) %}{% set count = quote.votes if direction == 'up' else quote.votes - quote.rating %}{{ count }} {{ direction }}vote{% if count != 1 %}s{% endif %}{% endmacro %}
 
 <!--
 The code below is a slightly modified file from Flask-Bootstrap.
