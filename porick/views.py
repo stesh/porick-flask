@@ -8,6 +8,9 @@ from .models import Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 @app.before_request
 def before_request():
     g.current_page = current_page()
+    # TODO  - AUTHENTICATION
+    from mock import MagicMock
+    g.user = MagicMock()
 
 
 @app.route('/')
@@ -20,7 +23,10 @@ def landing_page():
 @app.route('/browse/<area>')
 def browse(area=None, quote_id=None):
     g.page = area or 'browse'
-    g.user = None
+    if g.page in ['favourites', 'disapproved'] and not g.user:
+        abort(404)
+    if g.page in ['unapproved', 'reported', 'deleted'] and not g.user.is_admin():
+        abort(404)
     quotes = Quote.query
     if quote_id is not None:
         quotes = quotes.filter(Quote.id == quote_id).first()
