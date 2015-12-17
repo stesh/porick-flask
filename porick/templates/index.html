@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body_content %}
+    <div class="hero-unit">
+        <h1>Porick.</h1>
+        <p>Porick is yet another IRC Quotes web application, designed to replace <i>Chirpy!</i></p>
+        <p>
+            <a class="btn btn-primary btn-large" href="{{ url_for('browse', area='main') }}">
+              Start browsing
+            </a>
+        </p>
+    </div>
+{% endblock %}

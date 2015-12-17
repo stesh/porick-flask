@@ -1,4 +1,4 @@
-from porick import app
+from porick.views import app
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=app.config['DEBUG'])
