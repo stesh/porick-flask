@@ -1,4 +1,5 @@
 from flask import render_template, g
+
 from porick import app, model
 
 
@@ -8,6 +9,7 @@ def landing_page():
 
 
 @app.route('/browse')
+@app.route('/browse/<int:quote_id>')
 @app.route('/browse/<area>')
 @app.route('/browse/<area>/page/<page>')
 def browse(area=None, page=None):
