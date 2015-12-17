@@ -4,7 +4,7 @@ from flask import (
     abort, render_template, flash, g, request, redirect, make_response, url_for)
 
 from . import app
-from .lib import current_page, authenticate
+from .lib import current_page, authenticate, validate_signup, create_user
 from .models import Quote, User, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
 
@@ -73,9 +73,28 @@ def new_quote():
     raise NotImplementedError()
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def create_account():
-    raise NotImplementedError()
+    g.page = 'sign up'
+    if request.method == 'GET':
+        return render_template('/signup.html')
+    username = request.form['username']
+    password = request.form['password']
+    password_confirm = request.form['password_confirm']
+    email = request.form['email']
+
+    validity = validate_signup(username, password, password_confirm, email)
+    if not validity['status']:
+        flash(validity['msg'], 'error')
+        return render_template('/signup.html')
+    try:
+        create_user(username, password, email)
+        authenticate(username, password)
+        g.user = User.query.filter(User.username == username).first()
+        return render_template('/signup_success.mako')
+    except NameError, e:
+        flash(e.__str__(), 'error')
+        return render_template('/signup.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
