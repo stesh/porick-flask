@@ -66,7 +66,7 @@
                         </ul>
                       </li>
                       {% else %}
-                      <li><a href="{{url_for('create_account')}}">Sign up</a></li>
+                      <li><a href="{{url_for('signup')}}">Sign up</a></li>
                       <li><a href="{{url_for('login', redirect_url=request.path)}}">Log in</a></li>
                       {% endif %}
                     {% endblock %}

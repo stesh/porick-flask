@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 
 from flask import (
@@ -74,7 +75,7 @@ def new_quote():
 
 
 @app.route('/signup', methods=['GET', 'POST'])
-def create_account():
+def signup():
     g.page = 'sign up'
     if request.method == 'GET':
         return render_template('/signup.html')
@@ -113,9 +114,11 @@ def login():
         response = make_response(redirect(request.args.get('redirect_url')))
     else:
         response = make_response(redirect(url_for('browse')))
-    response.set_cookie('auth', auth, expires=2592000)
-    response.set_cookie('username', user.username, expires=2592000)
-    response.set_cookie('level', str(user.level), expires=2592000)
+    expiry = datetime.datetime.now() + datetime.timedelta(
+        days=app.config['COOKIE_LIFETIME'])
+    response.set_cookie('auth', auth, expires=expiry)
+    response.set_cookie('username', user.username, expires=expiry)
+    response.set_cookie('level', str(user.level), expires=expiry)
     return response
 
 

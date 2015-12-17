@@ -19,7 +19,7 @@ def authenticate(username, password):
     user = User.query.filter(User.username == username).first()
     if not user:
         return False
-    elif bcrypt.hashpw(password, PASSWORD_SALT) == user.password:
+    elif bcrypt.hashpw(password.encode('utf-8'), PASSWORD_SALT) == user.password:
         return user
     else:
         return False
@@ -70,12 +70,12 @@ def create_user(username, password, email):
         elif conflicts.username == username:
             raise NameError('Sorry! That username is already taken.')
 
-    hashed_pass = bcrypt.hashpw(password, config['PASSWORD_SALT'])
+    hashed_pass = bcrypt.hashpw(password.encode('utf-8'), PASSWORD_SALT)
     new_user = User()
     new_user.username = username
     new_user.password = hashed_pass
     new_user.email = email
 
-    db.add(new_user)
-    db.commit()
+    db.session.add(new_user)
+    db.session.commit()
     return True
