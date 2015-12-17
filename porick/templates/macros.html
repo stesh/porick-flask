@@ -1,3 +1,5 @@
+{% macro check_if_voted(quote) %}{% if g.user %}{% for assoc in quote.voters %}{% if assoc.user.username == g.user.username %}{{ assoc.direction }}{% endif %}{% endif %}{% endmacro %}
+
 <!--
 The code below is a slightly modified file from Flask-Bootstrap.
 
