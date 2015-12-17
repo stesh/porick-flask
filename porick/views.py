@@ -78,13 +78,11 @@ def create_account():
     raise NotImplementedError()
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('/login.html')
-
-
-@app.route('/login', methods=['POST'])
-def login():
+    g.page = 'log in'
+    if request.method == 'GET':
+        return render_template('/login.html')
     user = authenticate(request.form['username'], request.form['password'])
     if not user:
         flash('Incorrect username / password', 'error')
