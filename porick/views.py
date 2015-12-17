@@ -13,10 +13,11 @@ def landing_page():
 @app.route('/browse')
 @app.route('/browse/<int:quote_id>')
 @app.route('/browse/<area>')
-@app.route('/browse/<area>/page/<page>')
-def browse(area=None, quote_id=None, page=None):
+@app.route('/browse/<area>/page/<int:page>')
+def browse(area=None, quote_id=None, page=1):
     g.page = area or 'browse'
-    quotes = db.query(Quote)
+    g.user = None
+    quotes = Quote.query
     if quote_id is not None:
         quote = quotes.filter(Quote.id == quote_id).first()
         if not quote or quote.status != QSTATUS['approved']:
@@ -31,7 +32,7 @@ def browse(area=None, quote_id=None, page=None):
             quotes = quotes.filter(Quote.status == QSTATUS['approved'])
         quotes = quotes.order_by(AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
         if area == 'random':
-            quotes = quotes.first()
+            quotes = [quotes.first()]
         else:
             quotes = quotes.all()
     return render_template('/browse.html', quotes=quotes)

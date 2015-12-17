@@ -99,13 +99,13 @@
                                     </div>
                                 </li>
                             {% endif %}
-                            {% if g.quote_is_deleteable(quote) %}
+                            % if g.quote_is_deleteable(quote) %}
                                 <li>
                                     <div class="quote_control logged_in delete" title="Delete" data-quote_id="{{quote.id}}">
                                         <i class="icon-trash"></i>
                                     </div>
                                 </li>
-                            {% endif %}
+                            % endif %}
                         </ul>
                     </li>
                 </ul>
@@ -131,19 +131,8 @@
                 </div>
             </div>
         {% endfor %}
-        ${self.display_pagination()}
+        Pagination:
+        {{ pagination.info }}
+        {{ pagination.links }}
     {% endif %}
 {% endblock %}
-
-<%def name="display_pagination()">
-    % if c.paginator.page_count > 1:
-        <div class="paginator_container">
-            <div class="pagination">
-                ${c.paginator.pager(curpage_attr={'class': 'bootstrap_style'},
-                                    dotdot_attr={'class': 'bootstrap_style'},
-                                    symbol_previous='&#171;',
-                                    symbol_next='&#187;')}
-            </div>
-        </div>
-    % endif
-</%def>
