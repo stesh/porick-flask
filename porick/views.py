@@ -94,15 +94,22 @@ def login():
         response = make_response(redirect(request.args.get('redirect_url')))
     else:
         response = make_response(redirect(url_for('browse')))
-    response.set_cookie('auth', auth, max_age=2592000)
-    response.set_cookie('username', user.username, max_age=2592000)
-    response.set_cookie('level', str(user.level), max_age=2592000)
+    response.set_cookie('auth', auth, expires=2592000)
+    response.set_cookie('username', user.username, expires=2592000)
+    response.set_cookie('level', str(user.level), expires=2592000)
     return response
 
 
 @app.route('/logout')
 def logout():
-    raise NotImplementedError()
+    g.page = 'logout'
+    response = make_response(redirect(url_for('landing_page')))
+    response.set_cookie('auth', '', expires=0)
+    response.set_cookie('username', '', expires=0)
+    response.set_cookie('level', '', expires=0)
+    g.user = None
+    flash('Logged out successfully!', 'info')
+    return response
 
 
 @app.route('/reset_password')
