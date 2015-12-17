@@ -1,6 +1,7 @@
 from flask import render_template, g, abort
 
 from porick import app
+
 from porick.model import db, Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
 
