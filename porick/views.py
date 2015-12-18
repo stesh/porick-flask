@@ -44,8 +44,8 @@ def browse(area=None, quote_id=None):
     g.page = area or 'browse'
     quotes = Quote.query
     if quote_id is not None:
-        quotes = quotes.filter(Quote.id == quote_id).first()
-        if not quotes or quotes.status != QSTATUS['approved']:
+        quotes = quotes.filter(Quote.id == quote_id)
+        if not quotes or quotes[0].status != QSTATUS['approved']:
             abort(404)
     else:
         try:
@@ -55,10 +55,10 @@ def browse(area=None, quote_id=None):
             # don't have a specific filter.
             quotes = quotes.filter(Quote.status == QSTATUS['approved'])
         quotes = quotes.order_by(AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
-        if area == 'random':
-            quotes = quotes.first()
     pagination = quotes.paginate(
         g.current_page, app.config['QUOTES_PER_PAGE'], error_out=True)
+    if quote_id or area == 'random':
+        pagination.items = pagination.items[:1]
     return render_template('/browse.html', pagination=pagination)
 
 
