@@ -1,5 +1,8 @@
 import datetime
 import hashlib
+import math
+
+from collections import defaultdict
 
 from flask import (
     abort, render_template, flash, g, request, redirect, make_response, url_for)
@@ -8,9 +11,11 @@ from . import app
 from .lib import current_page, authenticate, validate_signup, create_user
 from .models import (
     AREA_ORDER_MAP,
+    db,
     DEFAULT_ORDER,
     QSTATUS,
     Quote,
+    QuoteToTag,
     Tag,
     User,
 )
@@ -67,26 +72,42 @@ def browse(area=None, quote_id=None):
         pagination.items = pagination.items[:1]
     return render_template('/browse.html', pagination=pagination)
 
+def _generate_tagcloud(tags):
+    counts = defaultdict(int)
+    quote_to_tag = db.session.query(QuoteToTag).all()
+    tags = {t.id: t.tag for t in Tag.query.all()}
+
+    for quote_id, tag_id in quote_to_tag:
+        counts[tag_id] += 1
+
+    cloud = {}
+    for tag_id, count in counts.iteritems():
+        tag = tags.get(tag_id)
+        if tag:
+            cloud[tag] = math.log(count, math.e/2)
+
+    return cloud
 
 @app.route('/browse/tags')
 @app.route('/browse/tags/<tag>')
 def browse_by_tags(tag=None, page=None):
     if not tag:
-        raise NotImplementedError()
+        tags = Tag.query.all()
+        return render_template('tagcloud.html', tagcloud=_generate_tagcloud(tags))
 
-    tag = Tag.query.filter(Tag.tag == tag).one()
-    q = Quote.query
-    q = q.filter(Quote.tags.contains(tag))
-    q = q.filter(Quote.status == QSTATUS['approved'])
-    q = q.order_by(Quote.submitted.desc())
+    else:
+        tag = Tag.query.filter(Tag.tag == tag).one()
+        q = Quote.query
+        q = q.filter(Quote.tags.contains(tag))
+        q = q.filter(Quote.status == QSTATUS['approved'])
+        q = q.order_by(Quote.submitted.desc())
 
-    pagination = q.paginate(
-        g.current_page,
-        app.config['QUOTES_PER_PAGE'],
-        error_out=True
-    )
-
-    return render_template('/browse.html', pagination=pagination)
+        pagination = q.paginate(
+            g.current_page,
+            app.config['QUOTES_PER_PAGE'],
+            error_out=True
+        )
+        return render_template('/browse.html', pagination=pagination)
 
 @app.route('/search', methods=['POST'])
 def search():

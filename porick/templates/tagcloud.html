@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body_content %}
+    <div class="tags cloud">
+        {% for tag, size in tagcloud.iteritems() %}
+            <a href="{{url_for('browse_by_tags', tag=tag)}}">
+                <span class="label label-important" style="font-size:{{size + 10}}px;">
+                    {{tag}}
+                </span>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
