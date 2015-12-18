@@ -4,14 +4,14 @@
 {% block custom_js %}
     {% if g.user %}
         {% if g.show_approval_button %}
-            <script type="text/javascript" src="{{ url_for('static', filename='/js/approval.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/approval.js') }}"></script>
         {% endif %}
-        <script type="text/javascript" src="{{ url_for('static', filename='/js/voting.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='/js/favourites.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='/js/reporting.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='/js/delete.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/voting.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/favourites.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/reporting.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/delete.js') }}"></script>
         {% if g.is_admin and g.page != 'disapproved' %}
-            <script type="text/javascript" src="{{ url_for('static', filename='/js/disapprove.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/disapprove.js') }}"></script>
         {% endif %}
         <script type="text/javascript">
             $(document).ready(function() {
