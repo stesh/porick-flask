@@ -78,7 +78,7 @@
         {% endblock %}
         <div class="container">
             <div class="side_text">
-              {% block side_text %}{% endblock %}
+              {% block side_text %}{{ g.page }}{% endblock %}
             </div>
             {% block flash_messages %}
               {% with messages = get_flashed_messages(with_categories=true) %}

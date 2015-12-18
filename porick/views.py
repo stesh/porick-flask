@@ -68,10 +68,21 @@ def browse_by_tags(tag=None, page=None):
     raise NotImplementedError()
 
 
-@app.route('/search')
+@app.route('/search', methods=['POST'])
+def search():
+    term = request.form['term']
+    return redirect(url_for('display_search_results', term=term))
+
+
 @app.route('/search/<term>')
-def search(term=None, page=None):
-    raise NotImplementedError()
+def display_search_results(term=None, page=None):
+    quotes = Quote.query.filter(Quote.body.like('%' + term + '%')).filter(
+        Quote.status == QSTATUS['approved']).order_by(Quote.submitted.desc())
+    pagination = quotes.paginate(
+        g.current_page, app.config['QUOTES_PER_PAGE'], error_out=True)
+    g.page = 'search: %s' % term
+    return render_template('/browse.html', pagination=pagination)
+
 
 @app.route('/create')
 def new_quote():
