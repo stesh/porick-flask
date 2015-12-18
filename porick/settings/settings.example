@@ -6,3 +6,9 @@ SECRET_KEY = 'Yet another, different, random string, to be kept secret.'
 QUOTES_PER_PAGE = 10
 COOKIE_LIFETIME = 90 # in days
 USER_REPORT_LIMIT = 5 # Max number of reports a user can make before they're processed
+PASSWORD_RESET_REQUEST_EXPIRY = 2 # in hours
+
+# Settings for emailing password resets
+SMTP_REPLYTO = 'root'
+SMTP_SERVER = 'localhost'
+SERVER_DOMAIN = 'localhost'
