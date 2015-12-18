@@ -9,6 +9,9 @@ from .lib import current_page, authenticate, validate_signup, create_user
 from .models import Quote, User, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
 
+MEMBER_AREAS = ['favourites', 'disapproved']
+ADMIN_AREAS = ['unapproved', 'reported', 'deleted']
+
 @app.before_request
 def before_request():
     g.current_page = current_page()
@@ -33,11 +36,12 @@ def landing_page():
 @app.route('/browse/<int:quote_id>')
 @app.route('/browse/<area>')
 def browse(area=None, quote_id=None):
+    if area in MEMBER_AREAS and not g.user:
+        flash('You must be logged in to view that page.', 'info')
+        return redirect(url_for('login', redirect_url=request.path))
+    if area in ADMIN_AREAS and not g.user.is_admin():
+        abort(404)
     g.page = area or 'browse'
-    if g.page in ['favourites', 'disapproved'] and not g.user:
-        abort(404)
-    if g.page in ['unapproved', 'reported', 'deleted'] and not g.user.is_admin():
-        abort(404)
     quotes = Quote.query
     if quote_id is not None:
         quotes = quotes.filter(Quote.id == quote_id).first()
@@ -102,7 +106,7 @@ def signup():
 def login():
     g.page = 'log in'
     if request.method == 'GET':
-        return render_template('/login.html')
+        return render_template('/login.html', redirect_url=request.args.get('redirect_url', ''))
     user = authenticate(request.form['username'], request.form['password'])
     if not user:
         flash('Incorrect username / password', 'error')
