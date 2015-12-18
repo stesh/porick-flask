@@ -1,16 +1,27 @@
-from flask import render_template, g, abort
+import datetime
+import hashlib
+
+from flask import (
+    abort, render_template, flash, g, request, redirect, make_response, url_for)
 
 from . import app
-from .lib import current_page
-from .models import Quote, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
+from .lib import current_page, authenticate, validate_signup, create_user
+from .models import Quote, User, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
 
 
 @app.before_request
 def before_request():
     g.current_page = current_page()
-    # TODO  - AUTHENTICATION
-    from mock import MagicMock
-    g.user = MagicMock()
+    g.user = None
+    auth = request.cookies.get('auth')
+    username = request.cookies.get('username')
+    level = request.cookies.get('level')
+    if auth:
+        value = '{}:{}:{}'.format(app.config['COOKIE_SECRET'], username, level)
+        if auth == hashlib.md5(value).hexdigest():
+            user = User.query.filter(User.username == username).first()
+            if user:
+                g.user = user
 
 
 @app.route('/')
@@ -63,19 +74,64 @@ def new_quote():
     raise NotImplementedError()
 
 
-@app.route('/signup')
-def create_account():
-    raise NotImplementedError()
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    g.page = 'sign up'
+    if request.method == 'GET':
+        return render_template('/signup.html')
+    username = request.form['username']
+    password = request.form['password']
+    password_confirm = request.form['password_confirm']
+    email = request.form['email']
+
+    validity = validate_signup(username, password, password_confirm, email)
+    if not validity['status']:
+        flash(validity['msg'], 'error')
+        return render_template('/signup.html')
+    try:
+        create_user(username, password, email)
+        authenticate(username, password)
+        g.user = User.query.filter(User.username == username).first()
+        return render_template('/signup_success.mako')
+    except NameError, e:
+        flash(e.__str__(), 'error')
+        return render_template('/signup.html')
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    raise NotImplementedError()
+    g.page = 'log in'
+    if request.method == 'GET':
+        return render_template('/login.html')
+    user = authenticate(request.form['username'], request.form['password'])
+    if not user:
+        flash('Incorrect username / password', 'error')
+        return render_template('/login.html')
+    cleartext_value = '{}:{}:{}'.format(
+        app.config['COOKIE_SECRET'], user.username, user.level)
+    auth = hashlib.md5(cleartext_value).hexdigest()
+    if request.args.get('redirect_url') not in [None, '/signup', '/logout', '/reset_password']:
+        response = make_response(redirect(request.args.get('redirect_url')))
+    else:
+        response = make_response(redirect(url_for('browse')))
+    expiry = datetime.datetime.now() + datetime.timedelta(
+        days=app.config['COOKIE_LIFETIME'])
+    response.set_cookie('auth', auth, expires=expiry)
+    response.set_cookie('username', user.username, expires=expiry)
+    response.set_cookie('level', str(user.level), expires=expiry)
+    return response
 
 
 @app.route('/logout')
 def logout():
-    raise NotImplementedError()
+    g.page = 'logout'
+    response = make_response(redirect(url_for('landing_page')))
+    response.set_cookie('auth', '', expires=0)
+    response.set_cookie('username', '', expires=0)
+    response.set_cookie('level', '', expires=0)
+    g.user = None
+    flash('Logged out successfully!', 'info')
+    return response
 
 
 @app.route('/reset_password')
