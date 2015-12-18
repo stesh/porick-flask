@@ -132,6 +132,8 @@
                 </div>
             </div>
         {% endfor %}
-        {{render_pagination(pagination)}}
+        {% if pagination.items | length > 1 %}
+          {{render_pagination(pagination)}}
+        {% endif %}
     {% endif %}
 {% endblock %}
