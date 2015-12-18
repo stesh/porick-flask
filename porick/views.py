@@ -6,8 +6,14 @@ from flask import (
 
 from . import app
 from .lib import current_page, authenticate, validate_signup, create_user
-from .models import Quote, User, AREA_ORDER_MAP, DEFAULT_ORDER, QSTATUS
-
+from .models import (
+    AREA_ORDER_MAP,
+    DEFAULT_ORDER,
+    QSTATUS,
+    Quote,
+    Tag,
+    User,
+)
 
 MEMBER_AREAS = ['favourites', 'disapproved']
 ADMIN_AREAS = ['unapproved', 'reported', 'deleted']
@@ -65,8 +71,22 @@ def browse(area=None, quote_id=None):
 @app.route('/browse/tags')
 @app.route('/browse/tags/<tag>')
 def browse_by_tags(tag=None, page=None):
-    raise NotImplementedError()
+    if not tag:
+        raise NotImplementedError()
 
+    tag = Tag.query.filter(Tag.tag == tag).one()
+    q = Quote.query
+    q = q.filter(Quote.tags.contains(tag))
+    q = q.filter(Quote.status == QSTATUS['approved'])
+    q = q.order_by(Quote.submitted.desc())
+
+    pagination = q.paginate(
+        g.current_page,
+        app.config['QUOTES_PER_PAGE'],
+        error_out=True
+    )
+
+    return render_template('/browse.html', pagination=pagination)
 
 @app.route('/search')
 @app.route('/search/<term>')
