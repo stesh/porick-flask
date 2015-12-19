@@ -5,4 +5,4 @@ app = Flask(__name__)
 app.config.from_object('porick.settings')
 db = SQLAlchemy(app)
 
-from . import views, models
+from . import api, views, models
