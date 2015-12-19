@@ -63,6 +63,7 @@ class User(db.Model):
     reported_quotes = relationship("Quote", secondary=ReportedQuotes)
     deleted_quotes = relationship("Quote", secondary=DeletedQuotes)
 
+    @property
     def is_admin(self):
         return self.level == 1
 

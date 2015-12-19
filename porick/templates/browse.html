@@ -10,7 +10,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='js/favourites.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/reporting.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/delete.js') }}"></script>
-        {% if g.is_admin and g.page != 'disapproved' %}
+        {% if g.user.is_admin and g.page != 'disapproved' %}
             <script type="text/javascript" src="{{ url_for('static', filename='js/disapprove.js') }}"></script>
         {% endif %}
         <script type="text/javascript">
@@ -19,7 +19,7 @@
                 setupFavouritesClickHandlers();
                 setupReportingClickHandlers();
                 setupDeleteClickHandlers();
-                {% if g.is_admin and g.page != 'disapproved' %}
+                {% if g.user.is_admin and g.page != 'disapproved' %}
                     setupDisapproveClickHandlers();
                 {% endif %}
                 {% if g.show_approval_button %}

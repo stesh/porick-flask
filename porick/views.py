@@ -50,7 +50,7 @@ def browse(area=None, quote_id=None):
     if area in MEMBER_AREAS and not g.user:
         flash('You must be logged in to view that page.', 'info')
         return redirect(url_for('login', redirect_url=request.path))
-    if area in ADMIN_AREAS and not g.user.is_admin():
+    if area in ADMIN_AREAS and not g.user.is_admin:
         abort(404)
     g.page = area or 'browse'
     quotes = Quote.query

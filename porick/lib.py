@@ -1,7 +1,8 @@
 import bcrypt
+from functools import wraps
 import re
 
-from flask import request
+from flask import request, g, abort
 from sqlalchemy import or_
 
 from models import User
@@ -79,3 +80,21 @@ def create_user(username, password, email):
     db.session.add(new_user)
     db.session.commit()
     return True
+
+
+def admin_endpoint(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.user or not g.user.is_admin:
+            abort(401)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def authenticated_endpoint(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.user:
+            abort(401)
+        return f(*args, **kwargs)
+    return decorated_function
