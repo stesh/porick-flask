@@ -72,14 +72,14 @@
                         <ul class="top_right_controls">
                             {% if g.page != 'reported' %}
                                 <li>
-                                    <div class="quote_control report {% if g.user %}logged_in{% endif %}" title="Report" data-quote_id="{{quote.id}}">
+                                    <div class="quote_control report {% if g.user %}logged_in {% endif %}" title="Report" data-quote_id="{{quote.id}}">
                                         <i class="icon-flag"></i>
                                     </div>
                                 </li>
                             {% endif %}
                             <li>
                                 <div>
-                                    <span class="quote_control favourite {% if g.user %}logged_in{% if quote in g.user.favourites %}favourited{% endif %}{% endif %}"
+                                    <span class="quote_control favourite {% if g.user %}logged_in {% if quote in g.user.favourites %}favourited {% endif %}{% endif %}"
                                           title="Favourite"
                                           data-quote_id="{{quote.id}}">
                                         <i class="{% if g.user and quote in g.user.favourites %}icon-star{% else %}icon-star-empty{% endif %}"></i>
