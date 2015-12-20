@@ -5,3 +5,4 @@ COOKIE_SECRET = 'Another, different, random string, to be kept secret.'
 SECRET_KEY = 'Yet another, different, random string, to be kept secret.'
 QUOTES_PER_PAGE = 10
 COOKIE_LIFETIME = 90 # in days
+USER_REPORT_LIMIT = 5 # Max number of reports a user can make before they're processed

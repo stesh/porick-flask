@@ -10,7 +10,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='js/favourites.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/reporting.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/delete.js') }}"></script>
-        {% if g.is_admin and g.page != 'disapproved' %}
+        {% if g.user.is_admin and g.page != 'disapproved' %}
             <script type="text/javascript" src="{{ url_for('static', filename='js/disapprove.js') }}"></script>
         {% endif %}
         <script type="text/javascript">
@@ -19,7 +19,7 @@
                 setupFavouritesClickHandlers();
                 setupReportingClickHandlers();
                 setupDeleteClickHandlers();
-                {% if g.is_admin and g.page != 'disapproved' %}
+                {% if g.user.is_admin and g.page != 'disapproved' %}
                     setupDisapproveClickHandlers();
                 {% endif %}
                 {% if g.show_approval_button %}
@@ -72,14 +72,14 @@
                         <ul class="top_right_controls">
                             {% if g.page != 'reported' %}
                                 <li>
-                                    <div class="quote_control report {% if g.user %}logged_in{% endif %}" title="Report" data-quote_id="{{quote.id}}">
+                                    <div class="quote_control report {% if g.user %}logged_in {% endif %}" title="Report" data-quote_id="{{quote.id}}">
                                         <i class="icon-flag"></i>
                                     </div>
                                 </li>
                             {% endif %}
                             <li>
                                 <div>
-                                    <span class="quote_control favourite {% if g.user %}logged_in{% if quote in g.user.favourites %}favourited{% endif %}{% endif %}"
+                                    <span class="quote_control favourite {% if g.user %}logged_in {% if quote in g.user.favourites %}favourited {% endif %}{% endif %}"
                                           title="Favourite"
                                           data-quote_id="{{quote.id}}">
                                         <i class="{% if g.user and quote in g.user.favourites %}icon-star{% else %}icon-star-empty{% endif %}"></i>
