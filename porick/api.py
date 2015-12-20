@@ -76,7 +76,7 @@ def report(quote_id):
     if has_made_too_many_reports():
         return jsonify({'msg': 'You are reporting quotes too fast. Slow down!',
                         'status': 'error'})
-    already_reported = db.session.query(ReportedQuotes).filter(
+    already_reported = db.session.query(ReportedQuotes).filter_by(
         user_id=g.user.id, quote_id=quote.id).first()
     if already_reported:
         return jsonify({
