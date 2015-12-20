@@ -8,7 +8,8 @@ from flask import (
     abort, render_template, flash, g, request, redirect, make_response, url_for)
 
 from . import app
-from .lib import current_page, authenticate, validate_signup, create_user
+from .lib import (current_page, authenticate, authenticated_endpoint,
+                  validate_signup, create_user)
 from .models import (
     AREA_ORDER_MAP,
     db,
@@ -125,9 +126,35 @@ def display_search_results(term=None, page=None):
     return render_template('/browse.html', pagination=pagination)
 
 
-@app.route('/create')
+@app.route('/create', methods=['GET', 'POST'])
+@authenticated_endpoint
 def new_quote():
-    raise NotImplementedError()
+    if request.method == 'GET':
+        g.page = 'new quote'
+        return render_template('/create_quote.html')
+    else:
+        quote_body = request.form.get('quote_body')
+        if not quote_body:
+            abort(400)
+        notes = request.form.get('notes', '')
+        tags = filter(None, request.form.get('tags', '').replace(',', ' ').split(' '))
+
+        quote = Quote()
+        quote.body = quote_body
+        quote.notes = notes
+
+        quote.tags = []
+        for tagname in tags:
+            tag = Tag.query.filter(Tag.tag == tagname).first()
+            if not tag:
+                tag = Tag()
+                tag.tag = tagname
+                db.session.add(tag)
+            quote.tags.append(tag)
+        quote.submitted_by = g.user
+        db.session.add(quote)
+        db.session.commit()
+        return render_template('/create_quote_success.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Quote added - Porick{% endblock %}
+
+{% block body_content %}
+    <div class="hero-unit">
+        <h1>Success!</h1>
+        <p>Awwwww ye! That quote will be up in no time, once it's approved.</p>
+        <p>
+            <a class="btn btn-primary btn-large" href="{{ url_for('browse', area='main') }}">
+              Continue browsing
+            </a>
+        </p>
+    </div>
+{% endblock %}
+

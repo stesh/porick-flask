@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import re
 
-from flask import request, g, abort
+from flask import request, g, abort, redirect, url_for
 from sqlalchemy import or_
 
 from models import ReportedQuotes, Quote, QSTATUS, User
@@ -96,7 +96,7 @@ def authenticated_endpoint(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not g.user:
-            abort(401)
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
 
