@@ -58,7 +58,7 @@ def favourite(quote_id):
         db.session.commit()
         return jsonify({'msg': 'Quote favourited.', 'status': 'success'})
     elif request.method == 'DELETE':
-        if not quote in g.user.favourites:
+        if quote not in g.user.favourites:
             return jsonify({
                 'msg': "Can't remove: This quote isn't in your favourites.",
                 'status': 'error'})
