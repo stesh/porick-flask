@@ -76,8 +76,8 @@ def report(quote_id):
     if has_made_too_many_reports():
         return jsonify({'msg': 'You are reporting quotes too fast. Slow down!',
                         'status': 'error'})
-    already_reported = db.session.query(ReportedQuotes).filter_by(
-        user_id=g.user.id).filter_by(quote_id=quote.id).first()
+    already_reported = db.session.query(ReportedQuotes).filter(
+        user_id=g.user.id, quote_id=quote.id).first()
     if already_reported:
         return jsonify({
             'msg': 'You already reported this quote in the past. Ignored.',
@@ -102,7 +102,7 @@ def vote(quote_id, direction):
         if not quote:
             return jsonify({'msg': 'Invalid quote ID.', 'status': 'error'})
 
-        already_voted = ''
+        already_voted = False
         for assoc in quote.voters:
             if assoc.user == g.user:
                 already_voted = True
