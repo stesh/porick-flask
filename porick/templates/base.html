@@ -51,6 +51,9 @@
                     {% block account_dropdown %}
                       {% if g.user and g.page != 'logout' %}
                       <li class="dropdown">
+                        {% if g.unapproved_quotes %}
+                          <span class="badge badge-important unapproved_notification">{{ g.unapproved_quotes }}</span>
+                        {% endif %}
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{g.user.username}} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                           {% if g.user.is_admin %}
