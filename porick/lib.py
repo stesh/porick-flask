@@ -121,7 +121,7 @@ def has_made_too_many_reports():
 
 
 def quote_belongs_to_user(quote_id):
-    quote = Quote.query.filter(Quote.id == quote_id).first()
+    quote = Quote.query.get(quote_id)
     if not quote:
         return {'msg': 'Invalid quote ID.',
                 'status': 'error'}

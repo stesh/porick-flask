@@ -10,7 +10,7 @@ from .models import QSTATUS, db, ReportedQuotes, Quote, VoteToUser
 @app.route('/api/v1/quotes/<int:quote_id>/approve', methods=['POST'])
 @admin_endpoint
 def approve(quote_id):
-    quote = Quote.query.filter(Quote.id == quote_id).first()
+    quote = Quote.query.get(quote_id)
     if not quote:
         return jsonify({'msg': 'Invalid quote ID.', 'status': 'error'})
     quote.status = QSTATUS['approved']
@@ -50,7 +50,7 @@ def delete(quote_id):
 @app.route('/api/v1/quotes/<int:quote_id>/favourite', methods=['POST', 'DELETE'])
 @authenticated_endpoint
 def favourite(quote_id):
-    quote = Quote.query.filter(Quote.id == quote_id).first()
+    quote = Quote.query.get(quote_id)
     if not quote:
         return jsonify({'msg': 'Invalid quote ID.', 'status': 'error'})
     if request.method == 'POST':
@@ -70,7 +70,7 @@ def favourite(quote_id):
 @app.route('/api/v1/quotes/<int:quote_id>/report', methods=['POST'])
 @authenticated_endpoint
 def report(quote_id):
-    quote = Quote.query.filter(Quote.id == quote_id).first()
+    quote = Quote.query.get(quote_id)
     if not quote:
         return jsonify({'msg': 'Invalid quote ID.', 'status': 'error'})
     if has_made_too_many_reports():
@@ -97,7 +97,7 @@ def report(quote_id):
 def vote(quote_id, direction):
     if direction not in ['up', 'down']:
         return jsonify({'msg': 'Invalid vote direction.', 'status': 'error'})
-    quote = Quote.query.filter(Quote.id == quote_id).first()
+    quote = Quote.query.get(quote_id)
     if request.method == 'POST':
         if not quote:
             return jsonify({'msg': 'Invalid quote ID.', 'status': 'error'})
