@@ -154,7 +154,8 @@ def new_quote():
         quote.submitted_by = g.user
         db.session.add(quote)
         db.session.commit()
-        return render_template('/create_quote_success.html')
+        flash("Success! Your quote will appear once it's been approved.", 'info')
+        return redirect(url_for('browse'))
 
 
 @app.route('/signup', methods=['GET', 'POST'])
