@@ -37,6 +37,9 @@ def before_request():
             user = User.query.filter(User.username == username).first()
             if user:
                 g.user = user
+    if g.user.is_admin:
+        g.unapproved_quotes = Quote.query.filter(
+            Quote.status == QSTATUS['unapproved']).count()
 
 
 @app.route('/')

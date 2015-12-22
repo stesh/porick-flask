@@ -176,3 +176,11 @@ form.create_new_quote textarea {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
     font-size: 13px;
 }
+
+.unapproved_notification {
+    margin-top: 2px;
+    position: absolute;
+    right: -8px;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
