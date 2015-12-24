@@ -63,12 +63,18 @@ def browse(area=None, quote_id=None):
         if not quotes or quotes[0].status != QSTATUS['approved']:
             abort(404)
     else:
-        try:
-            quotes = quotes.filter(Quote.status == QSTATUS[area])
-        except KeyError:
-            # This is the default case, for areas like "best" and "worst", that
-            # don't have a specific filter.
-            quotes = quotes.filter(Quote.status == QSTATUS['approved'])
+        # Filtering
+        if area == 'favourites':
+            quotes = quotes.filter(Quote.id.in_([quote.id for quote in g.user.favourites]))
+        else:
+            try:
+                quotes = quotes.filter(Quote.status == QSTATUS[area])
+            except KeyError:
+                # This is the default case, for areas like "best" and "worst", that
+                # don't have a specific filter.
+                quotes = quotes.filter(Quote.status == QSTATUS['approved'])
+
+        # Ordering
         quotes = quotes.order_by(AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
     pagination = quotes.paginate(
         g.current_page, app.config['QUOTES_PER_PAGE'], error_out=True)
