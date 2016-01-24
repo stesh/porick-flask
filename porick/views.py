@@ -19,6 +19,7 @@ from .models import (
     QuoteToTag,
     Tag,
     User,
+    VoteToUser
 )
 
 MEMBER_AREAS = ['favourites', 'disapproved']
@@ -151,6 +152,8 @@ def new_quote():
         quote = Quote()
         quote.body = quote_body
         quote.notes = notes
+        quote.submitted_by = g.user
+        quote.voters.append(VoteToUser(direction='up', user=g.user))
 
         quote.tags = []
         for tagname in tags:
@@ -160,7 +163,6 @@ def new_quote():
                 tag.tag = tagname
                 db.session.add(tag)
             quote.tags.append(tag)
-        quote.submitted_by = g.user
         db.session.add(quote)
         db.session.commit()
         flash("Success! Your quote will appear once it's been approved.", 'info')
@@ -185,7 +187,8 @@ def signup():
         create_user(username, password, email)
         authenticate(username, password)
         g.user = User.query.filter(User.username == username).first()
-        return render_template('/signup_success.mako')
+        flash("Your account was successfully created!", 'info')
+        return redirect(url_for('login'))
     except NameError, e:
         flash(e.__str__(), 'error')
         return render_template('/signup.html')
