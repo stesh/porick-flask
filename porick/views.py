@@ -154,7 +154,7 @@ def new_quote():
         quote.notes = notes
         quote.submitted_by = g.user
         quote.voters.append(VoteToUser(direction='up', user=g.user))
-        quote.score = 1
+        quote.rating = 1
 
         quote.tags = []
         for tagname in tags:
