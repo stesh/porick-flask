@@ -35,6 +35,9 @@
                     <li class="{{'active' if g.page == 'random' else ''}}">
                       <a href="{{url_for('browse', area='random')}}">Random</a>
                     </li>
+                    <li class="{{'active' if g.page == 'controversial' else ''}}">
+                      <a href="{{url_for('browse', area='controversial')}}">Controversial</a>
+                    </li>
                     <li class="{{'active' if g.page == 'disapproved' else ''}}">
                       <a href="{{url_for('browse', area='disapproved')}}">Disapproved</a>
                     </li>

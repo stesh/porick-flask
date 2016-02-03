@@ -105,10 +105,10 @@ class Quote(db.Model):
     submitted_by = relationship("User", secondary=QuoteToUser, uselist=False)
     voters       = relationship("VoteToUser")
 
-
 AREA_ORDER_MAP = {
     'best': Quote.rating.desc(),
     'worst': Quote.rating,
-    'random': func.rand()
+    'random': func.rand(),
+    'controversial': Quote.rating/Quote.votes
 }
 DEFAULT_ORDER = Quote.submitted.desc()
