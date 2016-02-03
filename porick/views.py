@@ -78,7 +78,7 @@ def browse(area=None, quote_id=None):
                 quotes = quotes.filter(Quote.status == QSTATUS['approved'])
 
         # Ordering
-        quotes = quotes.order_by(AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
+        quotes = quotes.order_by(*AREA_ORDER_MAP.get(area, DEFAULT_ORDER))
     pagination = quotes.paginate(
         g.current_page, app.config['QUOTES_PER_PAGE'], error_out=True)
     if quote_id or area == 'random':
