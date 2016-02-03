@@ -67,6 +67,8 @@ def browse(area=None, quote_id=None):
         # Filtering
         if area == 'favourites':
             quotes = quotes.filter(Quote.id.in_([quote.id for quote in g.user.favourites]))
+        elif area == 'controversial':
+            quotes = quotes.filter(Quote.votes > 0)
         else:
             try:
                 quotes = quotes.filter(Quote.status == QSTATUS[area])
