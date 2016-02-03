@@ -105,6 +105,15 @@ class Quote(db.Model):
     submitted_by = relationship("User", secondary=QuoteToUser, uselist=False)
     voters       = relationship("VoteToUser")
 
+    @property
+    def upvotes(self):
+        return len([v for v in self.voters if v.direction == 'up'])
+
+    @property
+    def downvotes(self):
+        return len([v for v in self.voters if v.direction == 'down'])
+
+
 AREA_ORDER_MAP = {
     'best': [Quote.rating.desc()],
     'worst': [Quote.rating],

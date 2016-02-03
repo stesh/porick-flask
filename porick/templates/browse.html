@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "/macros.html" import check_if_voted, get_score_mouseover, render_pagination %}
+{% from "/macros.html" import check_if_voted, render_pagination %}
 
 {% block custom_js %}
     {% if g.user %}
@@ -51,11 +51,11 @@
             <div class="well quote">
                 {% set voted=check_if_voted(quote) %}
                 <div class="votes">
-                    <div class="quote_control vote up {% if g.user %}logged_in {% endif %}{% if voted == 'up' %}voted {% endif %}" title="{{ get_score_mouseover(quote, 'up') }}" data-quote_id="{{quote.id}}">
+                    <div class="quote_control vote up {% if g.user %}logged_in {% endif %}{% if voted == 'up' %}voted {% endif %}" title="{{ quote.upvotes }} upvote{% if quote.upvotes != 1 %}s{% endif %}" data-quote_id="{{quote.id}}">
                         <i class="icon-arrow-up"></i>
                     </div>
                     <div class="score">{{quote.rating}}</div>
-                    <div class="quote_control vote down {% if g.user %}logged_in {% endif %}{% if voted == 'down' %}voted {% endif %}" title="{{ get_score_mouseover(quote, 'down') }}" data-quote_id="{{quote.id}}">
+                    <div class="quote_control vote down {% if g.user %}logged_in {% endif %}{% if voted == 'down' %}voted {% endif %}" title="{{ quote.downvotes }} downvote{% if quote.downvotes != 1 %}s{% endif %}" data-quote_id="{{quote.id}}">
                         <i class="icon-arrow-down"></i>
                     </div>
                 </div>
