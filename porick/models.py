@@ -106,9 +106,9 @@ class Quote(db.Model):
     voters       = relationship("VoteToUser")
 
 AREA_ORDER_MAP = {
-    'best': Quote.rating.desc(),
-    'worst': Quote.rating,
-    'random': func.rand(),
-    'controversial': Quote.rating/Quote.votes
+    'best': [Quote.rating.desc()],
+    'worst': [Quote.rating],
+    'random': [func.rand()],
+    'controversial': [Quote.votes, Quote.rating/Quote.votes]
 }
-DEFAULT_ORDER = Quote.submitted.desc()
+DEFAULT_ORDER = [Quote.submitted.desc()]
