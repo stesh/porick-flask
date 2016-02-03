@@ -118,6 +118,6 @@ AREA_ORDER_MAP = {
     'best': [Quote.rating.desc()],
     'worst': [Quote.rating],
     'random': [func.rand()],
-    'controversial': [Quote.votes, Quote.rating/Quote.votes]
+    'controversial': [float(Quote.upvotes + Quote.downvotes) / func.max(func.abs(Quote.upvotes - Quote.downvotes), 1)]
 }
 DEFAULT_ORDER = [Quote.submitted.desc()]
