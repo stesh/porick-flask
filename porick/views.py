@@ -287,7 +287,6 @@ def reset_password():
             if valid_password['status']:
                 user = User.query.get(token.user_id)
                 user.password = hash_password(password)
-                db.session.add(user)
 
                 db.session.delete(token)
                 db.session.commit()

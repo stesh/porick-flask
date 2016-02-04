@@ -15,7 +15,7 @@ from settings import PASSWORD_SALT, USER_REPORT_LIMIT, SERVER_DOMAIN, PASSWORD_R
 
 
 
-reset_password_text = """
+PASSWORD_RESET_TEXT = """
 Hi,
 
 A password reset has been requested for your account on Porick.
@@ -34,8 +34,8 @@ Porick
 """
 
 def send_reset_password_email(user_email, key):
-    validity = '{} hour{}'.format(PASSWORD_RESET_REQUEST_EXPIRY, '' if PASSWORD_RESET_REQUEST_EXPIRY == 1 else 's')
-    msg = MIMEText(reset_password_text.format(server_domain=SERVER_DOMAIN, key=key, validity=validity))
+    validity = '{} hour{}'.format(PASSWORD_RESET_REQUEST_EXPIRY, 's' if PASSWORD_RESET_REQUEST_EXPIRY > 1 else '')
+    msg = MIMEText(PASSWORD_RESET_TEXT.format(server_domain=SERVER_DOMAIN, key=key, validity=validity))
     msg['To'] = user_email
     msg['From'] = SMTP_REPLYTO
     msg['Subject'] = 'Porick password reset request'
@@ -111,7 +111,7 @@ def create_user(username, password, email):
         elif conflicts.username == username:
             raise NameError('Sorry! That username is already taken.')
 
-    hashed_pass = bcrypt.hashpw(password.encode('utf-8'), PASSWORD_SALT)
+    hashed_pass = hash_password(password)
     new_user = User()
     new_user.username = username
     new_user.password = hashed_pass
