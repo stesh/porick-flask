@@ -1,3 +1,4 @@
+import bcrypt
 import datetime
 import hashlib
 import math
@@ -8,12 +9,12 @@ from flask import (
     abort, render_template, flash, g, request, redirect, make_response, url_for)
 
 from . import app
-from .lib import (current_page, authenticate, authenticated_endpoint,
-                  validate_signup, create_user)
+from .lib import current_page, authenticate, authenticated_endpoint, validate_signup, create_user, hash_password, validate_password, send_reset_password_email
 from .models import (
     AREA_ORDER_MAP,
     db,
     DEFAULT_ORDER,
+    PasswordReset,
     QSTATUS,
     Quote,
     QuoteToTag,
@@ -191,8 +192,7 @@ def signup():
         create_user(username, password, email)
         authenticate(username, password)
         g.user = User.query.filter(User.username == username).first()
-        flash("Your account was successfully created!", 'info')
-        return redirect(url_for('login'))
+        return render_template('/signup_success.html')
     except NameError, e:
         flash(e.__str__(), 'error')
         return render_template('/signup.html')
@@ -221,7 +221,6 @@ def login():
     response.set_cookie('level', str(user.level), expires=expiry)
     return response
 
-
 @app.route('/logout')
 def logout():
     g.page = 'logout'
@@ -233,7 +232,68 @@ def logout():
     flash('Logged out successfully!', 'info')
     return response
 
-
-@app.route('/reset_password')
+@app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
-    raise NotImplementedError()
+    if request.method == 'GET':
+        if not request.args.get('key'):
+            return render_template('/pw_reset/request.html')
+
+        token = PasswordReset.query.filter_by(key=request.args['key']).first()
+        if token and token.is_valid:
+            return render_template('/pw_reset/set.html', key=token.key)
+        else:
+            flash('Invalid reset token', 'error')
+            return render_template('/index.html')
+
+
+    elif request.method == 'POST':
+        if not request.args.get('key'):
+        # The user has requested a new token
+            email = request.form['email']
+            user = User.query.filter_by(email=email).first()
+            if not user:
+                flash('Invalid email address provided.', 'error')
+                return render_template('/pw_reset/request.html')
+
+            # If this user already has a valid reset token, don't
+            # let them create a new one until it has expired
+            existing_token = PasswordReset.query.filter_by(user_id=user.id).first()
+            if existing_token:
+                if existing_token.is_valid:
+                    flash('A password reset has already been requested for this user.', 'error')
+                    return render_template('/pw_reset/request.html')
+                else:
+                    db.session.delete(existing_token)
+                    db.session.commit()
+
+            token = PasswordReset(user.id)
+            key = token.key
+            db.session.add(token)
+            db.session.commit()
+            send_reset_password_email(email, key)
+            flash('Password reset email sent!', 'success')
+            return render_template('/index.html')
+
+        else:
+        # Reset the password to what they provided
+            token = PasswordReset.query.filter_by(key=request.args['key']).first()
+            if not token or not token.is_valid:
+                flash('Invalid reset token.', 'error')
+                return render_template('/pw_reset/request.html')
+
+            password = request.form['password']
+            confirm_password = request.form['password_confirm']
+            valid_password = validate_password(password, confirm_password)
+            if valid_password['status']:
+                user = User.query.get(token.user_id)
+                user.password = hash_password(password)
+
+                db.session.delete(token)
+                db.session.commit()
+                flash('Password successfully reset. You should now be able to log in.', 'success')
+                return render_template('/login.html')
+            else:
+                flash(valid_password['msg'], 'error')
+                return render_template('/pw_reset/set.html', key=token.key)
+
+

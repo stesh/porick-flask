@@ -2,13 +2,49 @@ import bcrypt
 from datetime import datetime, timedelta
 from functools import wraps
 import re
+import smtplib
+
+from email.mime.text import MIMEText
 
 from flask import request, g, abort, redirect, url_for
 from sqlalchemy import or_
 
 from models import ReportedQuotes, Quote, QSTATUS, User
 from porick import db
-from settings import PASSWORD_SALT, USER_REPORT_LIMIT
+from settings import PASSWORD_SALT, USER_REPORT_LIMIT, SERVER_DOMAIN, PASSWORD_RESET_REQUEST_EXPIRY, SMTP_REPLYTO, SMTP_SERVER
+
+
+
+PASSWORD_RESET_TEXT = """
+Hi,
+
+A password reset has been requested for your account on Porick.
+
+To reset your password, please click the link below.
+
+http://{server_domain}/reset_password?key={key}
+
+This URL will be valid for {validity}.
+
+If you did not initiate this password reset then you may simply disregard this email.
+
+Cheers,
+Porick
+
+"""
+
+def send_reset_password_email(user_email, key):
+    validity = '{} hour{}'.format(PASSWORD_RESET_REQUEST_EXPIRY, 's' if PASSWORD_RESET_REQUEST_EXPIRY > 1 else '')
+    msg = MIMEText(PASSWORD_RESET_TEXT.format(server_domain=SERVER_DOMAIN, key=key, validity=validity))
+    msg['To'] = user_email
+    msg['From'] = SMTP_REPLYTO
+    msg['Subject'] = 'Porick password reset request'
+    s = smtplib.SMTP(SMTP_SERVER)
+    s.sendmail(
+        SMTP_REPLYTO, [user_email],
+        msg.as_string()
+    )
+    s.quit()
 
 def current_page(default=1):
     try:
@@ -17,11 +53,14 @@ def current_page(default=1):
         return default
 
 
+def hash_password(plaintext):
+    return bcrypt.hashpw(plaintext.encode('utf-8'), PASSWORD_SALT)
+
 def authenticate(username, password):
     user = User.query.filter(User.username == username).first()
     if not user:
         return False
-    elif bcrypt.hashpw(password.encode('utf-8'), PASSWORD_SALT) == user.password:
+    elif hash_password(password) == user.password:
         return user
     else:
         return False
@@ -72,7 +111,7 @@ def create_user(username, password, email):
         elif conflicts.username == username:
             raise NameError('Sorry! That username is already taken.')
 
-    hashed_pass = bcrypt.hashpw(password.encode('utf-8'), PASSWORD_SALT)
+    hashed_pass = hash_password(password)
     new_user = User()
     new_user.username = username
     new_user.password = hashed_pass

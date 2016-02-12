@@ -1,11 +1,12 @@
 import datetime
+import uuid
 
 from sqlalchemy import (
     Column, Index, String, Text, DateTime, Integer, ForeignKey, Table, func)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import DOUBLE
 
-from porick import db
+from porick import app, db
 
 
 QSTATUS = {'unapproved': 0,
@@ -82,11 +83,21 @@ class VoteToUser(db.Model):
     user = relationship("User")
 
 
-class PasswordResets(db.Model):
+class PasswordReset(db.Model):
     __tablename__  = 'password_resets'
     user_id  = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    key = Column(String(26), nullable=False)
+    key = Column(String(32), nullable=False)
     created = Column(DateTime, nullable=False, default=now)
+
+    def __init__(self, user_id):
+        super(PasswordReset, self).__init__()
+        self.user_id = user_id
+        self.key = uuid.uuid4().hex
+
+    @property
+    def is_valid(self):
+        expiry = datetime.timedelta(hours=app.config['PASSWORD_RESET_REQUEST_EXPIRY'])
+        return self.created >= datetime.datetime.now() - expiry
 
 
 class Quote(db.Model):
