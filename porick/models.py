@@ -97,7 +97,7 @@ class PasswordReset(db.Model):
     @property
     def is_valid(self):
         expiry = datetime.timedelta(hours=app.config['PASSWORD_RESET_REQUEST_EXPIRY'])
-        return self.created >= datetime.datetime.now() - expiry
+        return now() < self.created + expiry
 
 
 class Quote(db.Model):
