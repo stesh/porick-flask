@@ -1,6 +1,6 @@
 import bcrypt
 import datetime
-import hashlib
+import hmac
 import math
 
 from collections import defaultdict
@@ -35,7 +35,9 @@ def before_request():
     level = request.cookies.get('level')
     if auth:
         value = '{}:{}:{}'.format(app.config['COOKIE_SECRET'], username, level)
-        if auth == hashlib.md5(value).hexdigest():
+        hmac_digest = hmac.new(value).hexdigest()
+        token_valid = hmac.compare_digest(auth, hmac_digest)
+        if token_valid:
             user = User.query.filter(User.username == username).first()
             if user:
                 g.user = user
@@ -209,7 +211,7 @@ def login():
         return render_template('/login.html')
     cleartext_value = '{}:{}:{}'.format(
         app.config['COOKIE_SECRET'], user.username, user.level)
-    auth = hashlib.md5(cleartext_value).hexdigest()
+    auth = hmac.new(cleartext_value).hexdigest()
     if request.args.get('redirect_url') not in [None, '/signup', '/logout', '/reset_password']:
         response = make_response(redirect(request.args.get('redirect_url')))
     else:
