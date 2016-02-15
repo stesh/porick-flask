@@ -86,13 +86,8 @@ class VoteToUser(db.Model):
 class PasswordReset(db.Model):
     __tablename__  = 'password_resets'
     user_id  = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    key = Column(String(32), nullable=False)
+    key = Column(String(32), nullable=False, default=uuid.uuid4)
     created = Column(DateTime, nullable=False, default=now)
-
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.key = uuid.uuid4().hex
-        super(PasswordReset, self).__init__()
 
     @property
     def is_valid(self):
