@@ -268,10 +268,9 @@ def reset_password():
 
             token = PasswordReset()
             token.user = user
-            key = token.key
             db.session.add(token)
             db.session.commit()
-            send_reset_password_email(email, key)
+            send_reset_password_email(email, token.key)
             flash('Password reset email sent!', 'success')
             return render_template('/index.html')
 
