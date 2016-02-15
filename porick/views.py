@@ -266,7 +266,8 @@ def reset_password():
                     db.session.delete(existing_token)
                     db.session.commit()
 
-            token = PasswordReset(user.id)
+            token = PasswordReset()
+            token.user = user
             key = token.key
             db.session.add(token)
             db.session.commit()
