@@ -90,10 +90,9 @@ class PasswordReset(db.Model):
     created = Column(DateTime, nullable=False, default=now)
 
     def __init__(self, user_id):
-        super(PasswordReset, self).__init__()
         self.user_id = user_id
         self.key = uuid.uuid4().hex
-        self.save()
+        super(PasswordReset, self).__init__()
 
     @property
     def is_valid(self):
