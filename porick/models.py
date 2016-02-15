@@ -93,6 +93,7 @@ class PasswordReset(db.Model):
         super(PasswordReset, self).__init__()
         self.user_id = user_id
         self.key = uuid.uuid4().hex
+        self.save()
 
     @property
     def is_valid(self):
