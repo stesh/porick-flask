@@ -19,6 +19,9 @@ QSTATUS = {'unapproved': 0,
 def now():
     return datetime.datetime.utcnow()
 
+def get_uuid4_hex():
+    return uuid.uuid4().hex
+
 
 class Tag(db.Model):
     __tablename__  = 'tags'
@@ -86,7 +89,7 @@ class VoteToUser(db.Model):
 class PasswordReset(db.Model):
     __tablename__  = 'password_resets'
     user_id  = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    key = Column(String(32), nullable=False, default=uuid.uuid4)
+    key = Column(String(32), nullable=False, default=get_uuid4_hex)
     created = Column(DateTime, nullable=False, default=now)
 
     @property
