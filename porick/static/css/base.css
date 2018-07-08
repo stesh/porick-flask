@@ -28,7 +28,6 @@ body {
     left: 50%;
 }
 div.pagination {
-    border-left: 1px solid #DDD;
     margin: 6px auto 12px auto !important;
     float: left;
     position: relative;
