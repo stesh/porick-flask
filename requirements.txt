@@ -1,5 +1,4 @@
 Flask
-MySQL-python
 SQLAlchemy
 bcrypt
 Flask-SQLAlchemy
