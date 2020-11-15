@@ -9,9 +9,9 @@ from email.mime.text import MIMEText
 from flask import request, g, abort, redirect, url_for
 from sqlalchemy import or_
 
-from models import ReportedQuotes, Quote, QSTATUS, User
+from porick.models import ReportedQuotes, Quote, QSTATUS, User
 from porick import db
-from settings import PASSWORD_SALT, USER_REPORT_LIMIT, SERVER_DOMAIN, PASSWORD_RESET_REQUEST_EXPIRY, SMTP_REPLYTO, SMTP_SERVER
+from porick.settings import PASSWORD_SALT, USER_REPORT_LIMIT, SERVER_DOMAIN, PASSWORD_RESET_REQUEST_EXPIRY, SMTP_REPLYTO, SMTP_SERVER
 
 
 

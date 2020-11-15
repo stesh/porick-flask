@@ -193,7 +193,7 @@ def signup():
         authenticate(username, password)
         g.user = User.query.filter(User.username == username).first()
         return render_template('/signup_success.html')
-    except NameError, e:
+    except NameError as e:
         flash(e.__str__(), 'error')
         return render_template('/signup.html')
 
@@ -295,5 +295,3 @@ def reset_password():
             else:
                 flash(valid_password['msg'], 'error')
                 return render_template('/pw_reset/set.html', key=token.key)
-
-
