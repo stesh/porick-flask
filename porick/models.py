@@ -21,10 +21,8 @@ def now():
 
 class Tag(db.Model):
     __tablename__  = 'tags'
-    __table_args__ = {'sqlite_autoincrement': True}
-    id = Column(Integer, nullable=False, primary_key=True)
-    tag = Column(String(255), nullable=False, primary_key=True)
-
+    tag = Column(String(255), nullable=False, primary_key=True, unique=True)
+    id = Column(Integer, nullable=False, primary_key=True, unique=True)
 
 QuoteToTag = Table('quote_to_tag', db.Model.metadata,
     Column('quote_id', Integer, ForeignKey('quotes.id')),
