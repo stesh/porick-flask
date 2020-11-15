@@ -4,7 +4,6 @@ import uuid
 from sqlalchemy import (
     Column, Index, String, Text, DateTime, Integer, ForeignKey, Table, func)
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.mysql import DOUBLE
 
 from porick import app, db
 
@@ -22,8 +21,7 @@ def now():
 
 class Tag(db.Model):
     __tablename__  = 'tags'
-    __table_args__ = {'mysql_engine': 'InnoDB',
-                      'sqlite_autoincrement': True}
+    __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer, nullable=False, primary_key=True)
     tag = Column(String(255), nullable=False, primary_key=True)
 
@@ -53,8 +51,7 @@ DeletedQuotes = Table('deleted_quotes', db.Model.metadata,
 
 class User(db.Model):
     __tablename__  = 'users'
-    __table_args__ = {'mysql_engine': 'InnoDB',
-                      'sqlite_autoincrement': True}
+    __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer, nullable=False, primary_key=True)
     username = Column(String(32), nullable=False, unique=True)
     password = Column(String(60), nullable=False)
@@ -98,8 +95,7 @@ class PasswordReset(db.Model):
 
 class Quote(db.Model):
     __tablename__  = 'quotes'
-    __table_args__ = {'mysql_engine': 'InnoDB',
-                      'sqlite_autoincrement': True}
+    __table_args__ = {'sqlite_autoincrement': True}
     id           = Column(Integer, nullable=False, primary_key=True)
     body         = Column(Text, nullable=False)
     notes        = Column(Text, nullable=True)
@@ -107,7 +103,7 @@ class Quote(db.Model):
     votes        = Column(Integer, nullable=False, default=0)
     submitted    = Column(DateTime, nullable=False, default=now)
     status       = Column(Integer, nullable=False, default=0)
-    score        = Column(DOUBLE(unsigned=True), nullable=False, default=1)
+    score        = Column(Integer, nullable=False, default=1)
     tags         = relationship("Tag", secondary=QuoteToTag)
     submitted_by = relationship("User", secondary=QuoteToUser, uselist=False)
     voters       = relationship("VoteToUser")
