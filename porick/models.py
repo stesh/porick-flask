@@ -118,7 +118,7 @@ class Quote(db.Model):
 AREA_ORDER_MAP = {
     'best': [Quote.rating.desc()],
     'worst': [Quote.rating],
-    'random': [func.rand()],
+    'random': [func.random()],
     'controversial': [Quote.votes, Quote.rating/Quote.votes]
 }
 DEFAULT_ORDER = [Quote.submitted.desc()]
