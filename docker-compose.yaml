@@ -10,8 +10,10 @@ services:
     build:
       context: .
     env_file:
-    - ./dev.env 
-    command: python
+    - ./dev.env
+    command: ["python", "/mnt/runserver.py"]
+    ports:
+    - "5000:5000"
     volumes:
     - .:/mnt
     depends_on:
