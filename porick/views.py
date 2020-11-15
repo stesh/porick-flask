@@ -95,7 +95,7 @@ def _generate_tagcloud(tags):
         counts[tag_id] += 1
 
     cloud = {}
-    for tag_id, count in counts.iteritems():
+    for tag_id, count in counts.items():
         tag = tags.get(tag_id)
         if tag:
             cloud[tag] = math.log(count, math.e/2)

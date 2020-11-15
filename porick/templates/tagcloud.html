@@ -2,7 +2,7 @@
 
 {% block body_content %}
     <div class="tags cloud">
-        {% for tag, size in tagcloud.iteritems() %}
+        {% for tag, size in tagcloud.items() %}
             <a href="{{url_for('browse_by_tags', tag=tag)}}">
                 <span class="label label-important" style="font-size:{{size + 10}}px;">
                     {{tag}}
